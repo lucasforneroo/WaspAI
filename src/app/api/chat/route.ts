@@ -3,6 +3,7 @@ import { REVIEW_PROMPT } from '@/prompts/review';
 import { DEBUG_PROMPT } from '@/prompts/debug';
 import { EXPLAIN_PROMPT } from '@/prompts/explain';
 import { ARCHITECTURE_PROMPT } from '@/prompts/architecture';
+import { EXECUTION_PROMPT } from '@/prompts/execution';
 import { createClient } from '@/utils/supabase/server';
 
 const PROMPTS: Record<string, string> = {
@@ -10,6 +11,7 @@ const PROMPTS: Record<string, string> = {
   debug: DEBUG_PROMPT,
   explain: EXPLAIN_PROMPT,
   architecture: ARCHITECTURE_PROMPT,
+  execution: EXECUTION_PROMPT,
   refactor: 'You are WaspAI, a staff engineer. Refactor the following code for better readability and performance without changing its functionality.'
 };
 
@@ -77,13 +79,19 @@ export async function POST(req: Request) {
       const title = lastUserMessage.split(' ').slice(0, 5).join(' ') + '...';
       const { data: newChat, error: chatError } = await supabase
         .from('chats')
-        .insert([{ user_id: user.id, title }])
+        .insert([{ user_id: user.id, title, mode }]) // Guardamos el modo aquí
         .select().single();
         
-      if (chatError || !newChat) return new Response(JSON.stringify({ error: 'Error creating chat' }), { status: 500 });
+      if (chatError || !newChat) {
+        console.error('[API] Error creating chat:', chatError);
+        return new Response(JSON.stringify({ error: 'Error creating chat', details: chatError?.message }), { status: 500 });
+      }
       currentChatId = newChat.id;
     } else {
-      await supabase.from('chats').update({ updated_at: new Date().toISOString() }).eq('id', currentChatId);
+      await supabase.from('chats').update({ 
+        updated_at: new Date().toISOString(),
+        mode: mode // Actualizamos el modo por si el usuario lo cambió en el mismo chat
+      }).eq('id', currentChatId);
     }
 
     await supabase.from('messages').insert([{
@@ -107,9 +115,30 @@ export async function POST(req: Request) {
       parts: [{ text: m.text }],
     }));
 
-    const result = await model.generateContentStream({
-      contents: [...history, { role: 'user', parts: [{ text: lastUserMessage }] }]
-    });
+    // RETRY LOGIC EN EL SERVIDOR
+    let result;
+    let serverAttempt = 0;
+    const MAX_SERVER_RETRIES = 3;
+
+    while (serverAttempt < MAX_SERVER_RETRIES) {
+      try {
+        result = await model.generateContentStream({
+          contents: [...history, { role: 'user', parts: [{ text: lastUserMessage }] }]
+        });
+        break; // Éxito, salimos del bucle
+      } catch (error: any) {
+        serverAttempt++;
+        if (error.message?.includes('503') || error.message?.includes('429')) {
+          console.warn(`⚠️ [API] Gemini Busy (Attempt ${serverAttempt}/${MAX_SERVER_RETRIES}). Retrying...`);
+          if (serverAttempt === MAX_SERVER_RETRIES) throw error;
+          await new Promise(resolve => setTimeout(resolve, 1000 * serverAttempt));
+          continue;
+        }
+        throw error; // Otros errores, tiramos de una
+      }
+    }
+
+    if (!result) throw new Error('Failed to generate content');
 
     const encoder = new TextEncoder();
     return new Response(new ReadableStream({

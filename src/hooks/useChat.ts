@@ -6,7 +6,11 @@ export interface Message {
   text: string;
 }
 
-export function useChat(activeChatId: string | null, onChatCreated: (newChatId: string) => void) {
+export function useChat(
+  activeChatId: string | null, 
+  onChatCreated: (newChatId: string) => void,
+  onModeLoaded?: (mode: string) => void
+) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,6 +19,12 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
   const messagesRef = useRef<Message[]>([]);
   const isStreamingRef = useRef(false);
   const currentStreamChatIdRef = useRef<string | null>(null);
+  const onModeLoadedRef = useRef(onModeLoaded);
+
+  // Sincronizar la ref con el callback actual
+  useEffect(() => {
+    onModeLoadedRef.current = onModeLoaded;
+  }, [onModeLoaded]);
   
   useEffect(() => {
     messagesRef.current = messages;
@@ -25,10 +35,7 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
     let isMounted = true;
     
     async function loadHistory() {
-      // SI ESTAMOS EN MEDIO DE UN STREAM Y EL CHAT ID ES EL MISMO, 
-      // NO CARGAMOS HISTORIAL PARA EVITAR SOBREESCRIBIR EL STREAM.
       if (isStreamingRef.current && activeChatId === currentStreamChatIdRef.current) {
-        console.log('🔄 [useChat]: Skip history load (streaming in progress)');
         return;
       }
 
@@ -39,11 +46,13 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
       
       setLoading(true);
       try {
-        const history = await getMessages(activeChatId);
+        const { messages: history, mode } = await getMessages(activeChatId);
         if (isMounted) {
-          // Solo actualizamos si NO empezamos un stream justo ahora
           if (!isStreamingRef.current) {
             setMessages(history);
+            if (onModeLoadedRef.current && mode) {
+              onModeLoadedRef.current(mode);
+            }
           }
         }
       } catch (err) {
@@ -56,7 +65,7 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
     loadHistory();
 
     return () => { isMounted = false; };
-  }, [activeChatId]);
+  }, [activeChatId]); // Ya no dependemos de onModeLoaded!
 
   const sendMessage = useCallback(async (text: string, mode: string = 'review', currentChatId: string | null, useLocalBrain: boolean = false, config?: any) => {
     if (!text.trim()) return;
@@ -71,7 +80,7 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
     isStreamingRef.current = true;
     currentStreamChatIdRef.current = currentChatId;
 
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 5;
     let attempt = 0;
     let success = false;
 
@@ -89,15 +98,17 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
           }),
         });
 
-        // Si es un error temporal (503 o 429), reintentamos
         if (!response.ok) {
-          if ((response.status === 503 || response.status === 429) && attempt < MAX_RETRIES - 1) {
+          // Si es un error temporal (503 o 429), reintentamos hasta agotar MAX_RETRIES
+          if (response.status === 503 || response.status === 429) {
             attempt++;
-            const delay = Math.pow(2, attempt) * 500; // 1s, 2s, 4s...
-            console.warn(`⚠️ [useChat]: API Busy (503/429). Retrying in ${delay}ms... (Attempt ${attempt}/${MAX_RETRIES})`);
-            setError(`High demand. Retrying in ${Math.round(delay/1000)}s...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            continue;
+            if (attempt < MAX_RETRIES) {
+              const delay = Math.pow(2, attempt) * 500; // 1s, 2s, 4s, 8s, 16s...
+              console.warn(`⚠️ [useChat]: API Busy (503/429). Retrying in ${delay}ms... (Attempt ${attempt}/${MAX_RETRIES})`);
+              setError(`High demand. Retrying in ${Math.round(delay/1000)}s...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
           }
           
           const errorData = await response.json().catch(() => ({}));
@@ -112,51 +123,57 @@ export function useChat(activeChatId: string | null, onChatCreated: (newChatId: 
 
         if (!reader) throw new Error('No reader found');
         
-        // Si llegamos acá, la conexión está abierta y funcionando
         success = true;
         setError(null);
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
 
-          for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
-            
-            const data = trimmedLine.slice(6);
-            if (data === '[DONE]') continue;
-
-            try {
-              const parsed = JSON.parse(data);
+            for (const line of lines) {
+              const trimmedLine = line.trim();
+              if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
               
-              if (parsed.chatId && !streamChatId) {
-                streamChatId = parsed.chatId;
-                currentStreamChatIdRef.current = streamChatId;
-                onChatCreated(streamChatId);
-              }
+              const data = trimmedLine.slice(6);
+              if (data === '[DONE]') continue;
 
-              if (parsed.error) throw new Error(parsed.error);
-              
-              if (parsed.text) {
-                accumulatedText += parsed.text;
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const last = updated[updated.length - 1];
-                  if (last && last.role === 'assistant') {
-                    last.text = accumulatedText;
-                  }
-                  return updated;
-                });
+              try {
+                const parsed = JSON.parse(data);
+                
+                if (parsed.chatId && !streamChatId) {
+                  streamChatId = parsed.chatId;
+                  currentStreamChatIdRef.current = streamChatId;
+                  onChatCreated(streamChatId);
+                }
+
+                if (parsed.error) throw new Error(parsed.error);
+                
+                if (parsed.text) {
+                  accumulatedText += parsed.text;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const last = updated[updated.length - 1];
+                    if (last && last.role === 'assistant') {
+                      last.text = accumulatedText;
+                    }
+                    return updated;
+                  });
+                }
+              } catch (e) {
+                // Si el JSON es inválido, puede ser un chunk cortado, lo guardamos para el siguiente ciclo
+                buffer = 'data: ' + data + '\n' + buffer;
               }
-            } catch (e) {
-              buffer = 'data: ' + data + '\n' + buffer;
             }
           }
+        } catch (streamErr: any) {
+          console.error('Streaming error mid-way:', streamErr);
+          // Si falló a mitad del stream, intentamos al menos mostrar lo que llegamos a recibir
+          setError(`Connection interrupted. Displaying partial response.`);
         }
       } catch (err: any) {
         console.error('Chat error:', err);

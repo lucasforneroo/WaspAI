@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import Greeting from './Greeting';
@@ -19,11 +19,22 @@ interface ChatProps {
 }
 
 export default function Chat({ activeChatId, onChatCreated, config, user }: ChatProps) {
-  const { messages, loading, sendMessage } = useChat(activeChatId, onChatCreated);
-  const [input, setInput] = useState('');
   const [mode, setMode] = useState('review');
-  const [useLocalBrain, setUseLocalBrain] = useState(false);
   const [activeAgent, setActiveAgent] = useState('general');
+  const [useLocalBrain, setUseLocalBrain] = useState(false);
+
+  // Callback para cuando se carga el historial de un chat anterior
+  // USAMOS useCallback para evitar loops infinitos de re-renderizado
+  const handleModeLoaded = useCallback((loadedMode: string) => {
+    if (['execution', 'architecture', 'github', 'security', 'general'].includes(loadedMode)) {
+      setActiveAgent(loadedMode);
+    } else {
+      setMode(loadedMode);
+    }
+  }, []);
+
+  const { messages, loading, error, sendMessage } = useChat(activeChatId, onChatCreated, handleModeLoaded);
+  const [input, setInput] = useState('');
   const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
   const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
   
@@ -53,7 +64,11 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
     const currentInput = input;
     setInput(''); 
     setTimeout(() => scrollToBottom(true), 10);
-    await sendMessage(currentInput, mode, activeChatId, useLocalBrain, { ...config, agent: activeAgent });
+    
+    // Si el agente no es general, usamos el ID del agente como modo para persistencia
+    const effectiveMode = activeAgent !== 'general' ? activeAgent : mode;
+    
+    await sendMessage(currentInput, effectiveMode, activeChatId, useLocalBrain, { ...config, agent: activeAgent });
   };
 
   const scrollToBottom = (force = false) => {

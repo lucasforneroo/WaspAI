@@ -32,20 +32,31 @@ export async function deleteChat(chatId: string) {
 
 export async function getMessages(chatId: string) {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  
+  // Traemos los mensajes
+  const { data: messages, error: msgError } = await supabase
     .from('messages')
     .select('id, role, content, created_at')
     .eq('chat_id', chatId)
     .order('created_at', { ascending: true })
 
-  if (error) {
-    console.error('[getMessages] Error:', error)
-    return []
+  if (msgError) {
+    console.error('[getMessages] Error fetching messages:', msgError)
+    return { messages: [], mode: 'review' }
   }
-  
-  // Mapear al formato local
-  return (data || []).map(msg => ({
-    role: msg.role as 'user' | 'assistant',
-    text: msg.content
-  }))
+
+  // Traemos el modo del chat
+  const { data: chat, error: chatError } = await supabase
+    .from('chats')
+    .select('mode')
+    .eq('id', chatId)
+    .single()
+
+  return {
+    messages: (messages || []).map(msg => ({
+      role: msg.role as 'user' | 'assistant',
+      text: msg.content
+    })),
+    mode: chat?.mode || 'review'
+  }
 }

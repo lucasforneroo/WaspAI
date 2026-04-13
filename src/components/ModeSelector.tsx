@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code2, Bug, BookOpen, Wand2, LucideIcon, BrainCircuit } from 'lucide-react';
+import { Code2, Bug, BookOpen, Wand2, LucideIcon, BrainCircuit, Terminal, Layout } from 'lucide-react';
 
 interface Mode {
   id: string;
@@ -13,6 +13,8 @@ const MODES: Mode[] = [
   { id: 'debug', label: 'Debug', icon: Bug, desc: 'Interpreta errores y stack traces' },
   { id: 'explain', label: 'Explain', icon: BookOpen, desc: 'Explicación paso a paso' },
   { id: 'refactor', label: 'Refactor', icon: Wand2, desc: 'Mejora sin cambiar lógica' },
+  { id: 'architecture', label: 'Architecture', icon: Layout, desc: 'Mapeo de arquitectura y diagramas' },
+  { id: 'execution', label: 'Execution', icon: Terminal, desc: 'Implementación de código y fixes' },
 ];
 
 interface ModeSelectorProps {

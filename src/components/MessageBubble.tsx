@@ -36,6 +36,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   return <MermaidRenderer chart={String(children).replace(/\n$/, '')} />;
                 }
 
+                // Intento de extraer el nombre de archivo del texto anterior (heurística simple)
+                // En ReactMarkdown, podemos mirar los hermanos del nodo actual si fuera necesario, 
+                // pero una forma más limpia es que el Agente use un formato estándar.
+                
                 return !inline ? (
                   <div className="my-4">
                     <CodeBlock
