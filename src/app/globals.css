@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-purple: #150e16;
+  --color-purple-light: #633869;
+  --color-purple-dark: #231824;
+  --color-yellow-wasp: #f5ff88;
+}
+
+:root {
+  --background: var(--color-purple);
+  --foreground: #ffffff;
+}
+
+body {
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background-color: transparent;
+}
+
+/* Forzar opacidad en elementos clave */
+.opacity-100-forced {
+  opacity: 1 !important;
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 56, 105, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 255, 136, 0.2);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prose customization for yellow theme */
+.prose {
+  --tw-prose-invert-body: #cbd5e1;
+  --tw-prose-invert-headings: #f8fafc;
+  --tw-prose-invert-links: var(--color-yellow-wasp);
+  --tw-prose-invert-code: var(--color-yellow-wasp);
+}

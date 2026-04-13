@@ -1,0 +1,84 @@
+.dock-outer {
+  margin: 0 0.5rem;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 50;
+}
+
+.dock-panel {
+  display: flex;
+  align-items: flex-end;
+  width: fit-content;
+  /* Mantenemos un gap base */
+  gap: 1.5rem; 
+  padding: 0 1rem 1rem;
+  background: transparent;
+  border: none;
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  /* Agregamos margen lateral para asegurar distancia */
+  margin: 0 0.75rem;
+  background-color: rgba(35, 24, 36, 0.95);
+  border: 1px solid rgba(99, 56, 105, 0.4);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.dock-item:hover {
+  border-color: rgba(245, 255, 136, 0.6);
+  background-color: rgba(45, 34, 46, 1);
+  box-shadow: 0 0 20px rgba(245, 255, 136, 0.2);
+}
+
+.dock-item.active {
+  border-color: #f5ff88;
+  background-color: rgba(99, 56, 105, 0.6);
+  box-shadow: 0 0 25px rgba(245, 255, 136, 0.4);
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: color 0.2s ease;
+}
+
+.dock-item:hover .dock-icon {
+  color: #f5ff88;
+}
+
+.dock-label {
+  position: absolute;
+  /* Lo subimos un poco más */
+  top: -3rem; 
+  left: 50%;
+  /* Forzamos el centrado perfecto */
+  transform: translateX(-50%) !important;
+  width: max-content;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 255, 136, 0.4);
+  background-color: rgba(6, 0, 16, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f5ff88;
+  pointer-events: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
