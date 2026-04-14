@@ -15,6 +15,7 @@ const MODES: Mode[] = [
   { id: 'refactor', label: 'Refactor', icon: Wand2, desc: 'Mejora sin cambiar lógica' },
   { id: 'architecture', label: 'Architecture', icon: Layout, desc: 'Mapeo de arquitectura y diagramas' },
   { id: 'execution', label: 'Execution', icon: Terminal, desc: 'Implementación de código y fixes' },
+  { id: 'security', label: 'Security', icon: ShieldAlert, desc: 'Auditoría de seguridad y vulnerabilidades' },
 ];
 
 interface ModeSelectorProps {

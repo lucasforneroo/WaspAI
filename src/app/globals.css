@@ -54,3 +54,29 @@ body {
   --tw-prose-invert-links: var(--color-yellow-wasp);
   --tw-prose-invert-code: var(--color-yellow-wasp);
 }
+
+/* Security Pulse Animations */
+@keyframes pulse-yellow {
+  0%, 100% { background-color: rgba(26, 20, 27, 0.8); box-shadow: 0 0 15px rgba(234, 179, 8, 0.1); }
+  50% { background-color: rgba(234, 179, 8, 0.05); box-shadow: 0 0 25px rgba(234, 179, 8, 0.3); }
+}
+
+@keyframes pulse-orange {
+  0%, 100% { background-color: rgba(26, 20, 27, 0.8); box-shadow: 0 0 20px rgba(249, 115, 22, 0.1); }
+  50% { background-color: rgba(249, 115, 22, 0.08); box-shadow: 0 0 35px rgba(249, 115, 22, 0.4); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { background-color: rgba(26, 20, 27, 0.8); box-shadow: 0 0 25px rgba(239, 68, 68, 0.1); }
+  50% { background-color: rgba(239, 68, 68, 0.12); box-shadow: 0 0 45px rgba(239, 68, 68, 0.5); }
+}
+
+@keyframes pulse-purple {
+  0%, 100% { background-color: rgba(26, 20, 27, 0.8); box-shadow: 0 0 30px rgba(168, 85, 247, 0.1); }
+  50% { background-color: rgba(168, 85, 247, 0.15); box-shadow: 0 0 55px rgba(168, 85, 247, 0.6); }
+}
+
+.animate-pulse-yellow { animation: pulse-yellow 3s infinite ease-in-out; }
+.animate-pulse-orange { animation: pulse-orange 2.5s infinite ease-in-out; }
+.animate-pulse-red { animation: pulse-red 2s infinite ease-in-out; }
+.animate-pulse-purple { animation: pulse-purple 1.5s infinite ease-in-out; }

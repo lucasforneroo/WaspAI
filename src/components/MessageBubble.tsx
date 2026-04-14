@@ -12,17 +12,38 @@ interface MessageBubbleProps {
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === 'assistant';
 
+  // Lógica para detectar la severidad de seguridad
+  const severityMatch = message.text.match(/\[SEVERITY:\s+(LOW|MEDIUM|HIGH|CRITICAL)\]/i);
+  const severity = severityMatch ? severityMatch[1].toUpperCase() : null;
+
+  const getSeverityStyles = () => {
+    if (!severity || !isAssistant) return '';
+    
+    switch (severity) {
+      case 'LOW':
+        return 'animate-pulse-yellow border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]';
+      case 'MEDIUM':
+        return 'animate-pulse-orange border-orange-500/60 shadow-[0_0_20px_rgba(249,115,22,0.3)]';
+      case 'HIGH':
+        return 'animate-pulse-red border-red-500/70 shadow-[0_0_25px_rgba(239,68,68,0.4)]';
+      case 'CRITICAL':
+        return 'animate-pulse-purple border-purple-500/80 shadow-[0_0_30px_rgba(168,85,247,0.5)]';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className={`flex gap-4 ${isAssistant ? '' : 'justify-end'}`}>
       {isAssistant && (
-        <div className="w-8 h-8 rounded-lg bg-yellow-wasp/20 flex items-center justify-center flex-shrink-0 mt-1 border border-yellow-wasp/30">
-          <Bot size={20} className="text-yellow-wasp" />
+        <div className={`w-8 h-8 rounded-lg ${severity ? 'bg-black' : 'bg-yellow-wasp/20'} flex items-center justify-center flex-shrink-0 mt-1 border border-yellow-wasp/30 transition-all duration-500`}>
+          <Bot size={20} className={severity ? 'text-white animate-pulse' : 'text-yellow-wasp'} />
         </div>
       )}
       
-      <div className={`max-w-[85%] rounded-2xl px-5 py-3 backdrop-blur-md opacity-100-forced ${
+      <div className={`max-w-[85%] rounded-2xl px-5 py-3 backdrop-blur-md opacity-100-forced transition-all duration-700 ${
         isAssistant 
-        ? 'bg-[#1a141b] border border-purple-light/30 text-slate-100 leading-relaxed shadow-xl' 
+        ? `bg-[#1a141b] border border-purple-light/30 text-slate-100 leading-relaxed shadow-xl ${getSeverityStyles()}` 
         : 'bg-[#3b2a3d]/90 border border-purple-light/40 text-slate-100 shadow-2xl'
       }`}>
         <div className="prose prose-invert prose-slate max-w-none prose-headings:text-yellow-wasp prose-strong:text-yellow-wasp prose-a:text-yellow-wasp hover:prose-a:text-yellow-wasp/80">

@@ -99,12 +99,20 @@ export function useChat(
         });
 
         if (!response.ok) {
-          // Si es un error temporal (503 o 429), reintentamos hasta agotar MAX_RETRIES
-          if (response.status === 503 || response.status === 429) {
+          // Manejo específico de 429 (Quota Exceeded)
+          if (response.status === 429) {
+            console.error('🚫 [useChat]: Quota Exceeded (429).');
+            setError('Gemini API quota reached. Please wait a moment before sending more messages.');
+            // No reintentamos agresivamente el 429 en el cliente para no bloquear la IP
+            break; 
+          }
+
+          // Si es un error temporal 503, reintentamos
+          if (response.status === 503) {
             attempt++;
             if (attempt < MAX_RETRIES) {
-              const delay = Math.pow(2, attempt) * 500; // 1s, 2s, 4s, 8s, 16s...
-              console.warn(`⚠️ [useChat]: API Busy (503/429). Retrying in ${delay}ms... (Attempt ${attempt}/${MAX_RETRIES})`);
+              const delay = Math.pow(2, attempt) * 1000;
+              console.warn(`⚠️ [useChat]: API Busy (503). Retrying in ${delay}ms...`);
               setError(`High demand. Retrying in ${Math.round(delay/1000)}s...`);
               await new Promise(resolve => setTimeout(resolve, delay));
               continue;

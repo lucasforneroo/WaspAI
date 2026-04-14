@@ -5,6 +5,7 @@ import { EXPLAIN_PROMPT } from '@/prompts/explain';
 import { ARCHITECTURE_PROMPT } from '@/prompts/architecture';
 import { EXECUTION_PROMPT } from '@/prompts/execution';
 import { GITHUB_REVIEWER_PROMPT } from '@/prompts/github';
+import { SECURITY_PROMPT } from '@/prompts/security';
 import { createClient } from '@/utils/supabase/server';
 
 const PROMPTS: Record<string, string> = {
@@ -14,6 +15,7 @@ const PROMPTS: Record<string, string> = {
   architecture: ARCHITECTURE_PROMPT,
   execution: EXECUTION_PROMPT,
   github: GITHUB_REVIEWER_PROMPT,
+  security: SECURITY_PROMPT,
   refactor: 'You are WaspAI, a staff engineer. Refactor the following code for better readability and performance without changing its functionality.'
 };
 
@@ -54,8 +56,16 @@ async function getLocalBrainContext(query: string, geminiKey: string, supabaseCl
   try {
     const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-    
-    const result = await model.embedContent(query);
+
+    // Si la cuota de embeddings está agotada, esto va a fallar.
+    // Lo envolvemos para que el chat siga funcionando aunque el RAG falle.
+    const result = await model.embedContent(query).catch(err => {
+      console.warn('⚠️ [RAG]: Embedding quota exceeded or error.', err.message);
+      return null;
+    });
+
+    if (!result) return '';
+
     const embedding = result.embedding.values;
 
     const { data: documents, error } = await supabaseClient.rpc('match_documents', {
@@ -168,12 +178,23 @@ export async function POST(req: Request) {
         break; // Éxito, salimos del bucle
       } catch (error: any) {
         serverAttempt++;
-        if (error.message?.includes('503') || error.message?.includes('429')) {
+        // Solo reintentamos si es un error 503 (Servidor ocupado)
+        if (error.message?.includes('503')) {
           console.warn(`⚠️ [API] Gemini Busy (Attempt ${serverAttempt}/${MAX_SERVER_RETRIES}). Retrying...`);
           if (serverAttempt === MAX_SERVER_RETRIES) throw error;
           await new Promise(resolve => setTimeout(resolve, 1000 * serverAttempt));
           continue;
         }
+        
+        // Si es un 429 (Cuota), no reintentamos en el servidor, tiramos el error para que el cliente lo maneje
+        if (error.message?.includes('429')) {
+          console.error('🚫 [API] Gemini Quota Exceeded (429).');
+          return new Response(JSON.stringify({ 
+            error: 'API Quota Exceeded', 
+            details: 'The free tier limit of 20 requests per minute has been reached. Please wait about 60 seconds.' 
+          }), { status: 429 });
+        }
+
         throw error; // Otros errores, tiramos de una
       }
     }
