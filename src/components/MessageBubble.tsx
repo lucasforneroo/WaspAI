@@ -31,25 +31,34 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
               code({ node, inline, className, children, ...props }: any) {
                 const match = /language-(\w+)/.exec(className || '');
                 const language = match ? match[1] : '';
+                const codeText = String(children).replace(/\n$/, '');
 
                 if (!inline && language === 'mermaid') {
-                  return <MermaidRenderer chart={String(children).replace(/\n$/, '')} />;
+                  return <MermaidRenderer chart={codeText} />;
                 }
 
-                // Intento de extraer el nombre de archivo del texto anterior (heurística simple)
-                // En ReactMarkdown, podemos mirar los hermanos del nodo actual si fuera necesario, 
-                // pero una forma más limpia es que el Agente use un formato estándar.
-                
-                return !inline ? (
-                  <div className="my-4">
-                    <CodeBlock
-                      code={String(children).replace(/\n$/, '')}
-                      language={language}
-                      {...props}
-                    />
-                  </div>
-                ) : (
-                  <code className={`${className} bg-purple-dark px-1.5 py-0.5 rounded text-yellow-wasp font-mono text-sm border border-purple-light/20`} {...props}>
+                // FIX PARA RUIDO VISUAL: 
+                // Si no es inline pero el contenido es una sola palabra o una URL sin lenguaje específico,
+                // lo tratamos como inline para evitar el bloque gigante de "Copy Fix".
+                const isSingleWordOrUrl = !language && (
+                  !codeText.includes('\n') && 
+                  (codeText.split(' ').length === 1 || codeText.startsWith('http'))
+                );
+
+                if (!inline && !isSingleWordOrUrl) {
+                  return (
+                    <div className="my-4">
+                      <CodeBlock
+                        code={codeText}
+                        language={language}
+                        {...props}
+                      />
+                    </div>
+                  );
+                }
+
+                return (
+                  <code className={`${className} bg-purple-dark px-1.5 py-0.5 rounded text-yellow-wasp font-mono text-sm border border-purple-light/20 break-all`} {...props}>
                     {children}
                   </code>
                 );

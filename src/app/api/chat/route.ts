@@ -4,6 +4,7 @@ import { DEBUG_PROMPT } from '@/prompts/debug';
 import { EXPLAIN_PROMPT } from '@/prompts/explain';
 import { ARCHITECTURE_PROMPT } from '@/prompts/architecture';
 import { EXECUTION_PROMPT } from '@/prompts/execution';
+import { GITHUB_REVIEWER_PROMPT } from '@/prompts/github';
 import { createClient } from '@/utils/supabase/server';
 
 const PROMPTS: Record<string, string> = {
@@ -12,8 +13,42 @@ const PROMPTS: Record<string, string> = {
   explain: EXPLAIN_PROMPT,
   architecture: ARCHITECTURE_PROMPT,
   execution: EXECUTION_PROMPT,
+  github: GITHUB_REVIEWER_PROMPT,
   refactor: 'You are WaspAI, a staff engineer. Refactor the following code for better readability and performance without changing its functionality.'
 };
+
+async function getGitHubContext(text: string) {
+  // Regex para PRs y Repos
+  const prRegex = /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/;
+  const repoRegex = /https:\/\/github\.com\/([^\/]+)\/([^\/]+)(\/)?$/;
+  
+  const prMatch = text.match(prRegex);
+  const repoMatch = text.match(repoRegex);
+  
+  if (!prMatch && !repoMatch) return '';
+
+  try {
+    if (prMatch) {
+      const [_, owner, repo, prNumber] = prMatch;
+      const diffUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}.diff`;
+      const response = await fetch(diffUrl);
+      if (!response.ok) return `\n[ERROR: Could not fetch PR #${prNumber} diff]\n`;
+      const diffText = await response.text();
+      return `\n\n[GITHUB CONTEXT: PR #${prNumber}]\n${diffText.substring(0, 15000)}`;
+    } else if (repoMatch) {
+      const [_, owner, repo] = repoMatch;
+      // Para repositorios, intentamos ver si el usuario quiere info del repo
+      // Podríamos usar la API de GitHub, pero por ahora damos contexto de que es un REPO
+      return `\n\n[GITHUB CONTEXT: REPOSITORY DETECTED]\n` +
+             `The user provided a link to the repository: https://github.com/${owner}/${repo}\n` +
+             `As a Ghost Reviewer, analyze this project structure if the user asks for it.`;
+    }
+    return '';
+  } catch (err) {
+    console.error('[GitHub Context Error]:', err);
+    return '';
+  }
+}
 
 async function getLocalBrainContext(query: string, geminiKey: string, supabaseClient: any, depth: number = 5) {
   try {
@@ -75,6 +110,12 @@ export async function POST(req: Request) {
       ragContext = await getLocalBrainContext(lastUserMessage, process.env.GEMINI_API_KEY, supabase, depth);
     }
 
+    const activeAgent = config?.agent || 'general';
+    let githubContext = '';
+    if (activeAgent === 'github') {
+      githubContext = await getGitHubContext(lastUserMessage);
+    }
+
     if (!currentChatId) {
       const title = lastUserMessage.split(' ').slice(0, 5).join(' ') + '...';
       const { data: newChat, error: chatError } = await supabase
@@ -102,12 +143,11 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const modelToUse = config?.model || "gemini-2.5-flash";
-    const activeAgent = config?.agent || 'general';
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
     const model = genAI.getGenerativeModel({
       model: modelToUse,
-      systemInstruction: (basePrompt || PROMPTS.review) + ragContext,
+      systemInstruction: basePrompt + ragContext + githubContext,
     });
 
     const history = messages.slice(0, -1).map((m: any) => ({

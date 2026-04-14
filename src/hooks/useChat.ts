@@ -177,8 +177,21 @@ export function useChat(
         }
       } catch (err: any) {
         console.error('Chat error:', err);
+        
+        // Si el error es temporal (503/429), permitimos que el bucle siga e intente de nuevo
+        const isTransient = err.message?.includes('503') || err.message?.includes('429') || err.message?.includes('demand');
+        
+        if (isTransient && attempt < MAX_RETRIES - 1) {
+          attempt++;
+          const delay = Math.pow(2, attempt) * 500;
+          console.warn(`🔄 [useChat]: Transient error during stream. Retrying (${attempt}/${MAX_RETRIES})...`);
+          setError(`Connection hiccup. Retrying in ${Math.round(delay/1000)}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue; // No hacemos break, volvemos a intentar el fetch
+        }
+
         setError(err.message);
-        break; // Errores de red reales o fallas críticas, no reintentamos en el catch por ahora
+        break; // Error crítico o intentos agotados
       }
     }
 
