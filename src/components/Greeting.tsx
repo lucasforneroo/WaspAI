@@ -24,6 +24,14 @@ export default function Greeting({ userName }: GreetingProps) {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="flex flex-col items-center justify-center h-full py-20 text-center space-y-6"
     >
+      <motion.div
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="mb-10"
+      >
+        <img src="/logo.png" alt="WaspAI Logo" className="w-56 h-56 object-contain drop-shadow-[0_0_50px_rgba(245,255,136,0.5)]" />
+      </motion.div>
+
       <div className="space-y-2">
         <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-slate-100 italic font-serif">
           {getTimeOfDay()}, <span className="text-yellow-wasp not-italic font-sans font-bold">{userName}</span>
@@ -31,25 +39,6 @@ export default function Greeting({ userName }: GreetingProps) {
         <p className="text-lg md:text-xl text-slate-400 font-medium max-w-lg mx-auto leading-relaxed">
           ¿En qué código vamos a trabajar hoy? <br/>
         </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl w-full px-4 pt-10">
-        {[
-          { title: 'Review', desc: 'Analizar arquitectura y bugs' },
-          { title: 'Explain', desc: 'Entender lógica compleja' },
-          { title: 'Refactor', desc: 'Optimizar y limpiar código' }
-        ].map((box, i) => (
-          <motion.div
-            key={box.title}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 + (i * 0.1) }}
-            className="p-4 rounded-2xl bg-white/5 border border-white/10 text-left hover:bg-white/10 transition-colors cursor-default"
-          >
-            <h3 className="font-bold text-yellow-wasp text-sm mb-1">{box.title}</h3>
-            <p className="text-xs text-slate-400">{box.desc}</p>
-          </motion.div>
-        ))}
       </div>
     </motion.div>
   );

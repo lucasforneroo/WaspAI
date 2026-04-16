@@ -19,11 +19,14 @@ export default function Header({ onToggleSidebar, user }: HeaderProps) {
           <PanelLeft size={22} />
         </button>
 
-        <div className="flex flex-col">
-          <div className="font-black text-yellow-wasp tracking-tighter text-2xl select-none drop-shadow-[0_0_15px_rgba(245,255,136,0.4)] opacity-100-forced leading-none">
-            WaspAI
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="WaspAI Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_18px_rgba(245,255,136,0.7)]" />
+          <div className="flex flex-col">
+            <div className="font-black text-yellow-wasp tracking-tighter text-3xl select-none drop-shadow-[0_0_15px_rgba(245,255,136,0.4)] opacity-100-forced leading-none">
+              WaspAI
+            </div>
+            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 ml-0.5">Engineering Terminal</p>
           </div>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 ml-0.5">Engineering Terminal</p>
         </div>
       </div>
 
