@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { User, Bot } from 'lucide-react';
@@ -7,6 +9,14 @@ import { Message } from '../hooks/useChat';
 
 interface MessageBubbleProps {
   message: Message;
+}
+
+interface CodeProps {
+  node?: unknown;
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+  [key: string]: unknown;
 }
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
@@ -49,7 +59,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         <div className="prose prose-invert prose-slate max-w-none prose-headings:text-yellow-wasp prose-strong:text-yellow-wasp prose-a:text-yellow-wasp hover:prose-a:text-yellow-wasp/80">
           <ReactMarkdown
             components={{
-              code({ node, inline, className, children, ...props }: any) {
+              code({ inline, className, children, ...props }: CodeProps) {
                 const match = /language-(\w+)/.exec(className || '');
                 const language = match ? match[1] : '';
                 const codeText = String(children).replace(/\n$/, '');
@@ -58,9 +68,6 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   return <MermaidRenderer chart={codeText} />;
                 }
 
-                // FIX PARA RUIDO VISUAL: 
-                // Si no es inline pero el contenido es una sola palabra o una URL sin lenguaje específico,
-                // lo tratamos como inline para evitar el bloque gigante de "Copy Fix".
                 const isSingleWordOrUrl = !language && (
                   !codeText.includes('\n') && 
                   (codeText.split(' ').length === 1 || codeText.startsWith('http'))
