@@ -154,13 +154,13 @@ export default function Home() {
         />
 
         <main className="flex-1 flex flex-col relative overflow-hidden h-full">
-          <Header onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} user={user} />
+          <Header onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} user={user || undefined} />
           <div className="flex-1 overflow-hidden h-full">
             <Chat 
               activeChatId={activeChatId} 
               onChatCreated={handleChatCreated}
               config={config} 
-              user={user}
+              user={user || undefined}
             />
           </div>
         </main>

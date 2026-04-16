@@ -253,7 +253,6 @@ const LightPillar: React.FC<LightPillarProps> = ({
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    let lastTime = performance.now();
     const animate = (currentTime: number) => {
       if (!materialRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
@@ -263,7 +262,6 @@ const LightPillar: React.FC<LightPillarProps> = ({
       materialRef.current.uniforms.uRotCos.value = Math.cos(t * 0.3);
       materialRef.current.uniforms.uRotSin.value = Math.sin(t * 0.3);
       rendererRef.current.render(sceneRef.current, cameraRef.current);
-      lastTime = currentTime;
 
       rafRef.current = requestAnimationFrame(animate);
     };

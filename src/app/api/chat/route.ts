@@ -62,14 +62,14 @@ async function getGitHubContext(text: string) {
 
   try {
     if (prMatch) {
-      const [_, owner, repo, prNumber] = prMatch;
+      const [ , owner, repo, prNumber] = prMatch;
       const diffUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}.diff`;
       const response = await fetch(diffUrl);
       if (!response.ok) return `\n[ERROR: Could not fetch PR #${prNumber} diff]\n`;
       const diffText = await response.text();
       return `\n\n[GITHUB CONTEXT: PR #${prNumber}]\n${diffText.substring(0, 15000)}`;
     } else if (repoMatch) {
-      const [_, owner, repo] = repoMatch;
+      const [ , owner, repo] = repoMatch;
       // Para repositorios, intentamos ver si el usuario quiere info del repo
       // Podríamos usar la API de GitHub, pero por ahora damos contexto de que es un REPO
       return `\n\n[GITHUB CONTEXT: REPOSITORY DETECTED]\n` +

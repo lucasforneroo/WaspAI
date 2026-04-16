@@ -11,18 +11,9 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-interface CodeProps {
-  node?: unknown;
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-  [key: string]: unknown;
-}
-
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === 'assistant';
 
-  // Lógica para detectar la severidad de seguridad
   const severityMatch = message.text.match(/\[SEVERITY:\s+(LOW|MEDIUM|HIGH|CRITICAL)\]/i);
   const severity = severityMatch ? severityMatch[1].toUpperCase() : null;
 
@@ -59,7 +50,8 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         <div className="prose prose-invert prose-slate max-w-none prose-headings:text-yellow-wasp prose-strong:text-yellow-wasp prose-a:text-yellow-wasp hover:prose-a:text-yellow-wasp/80">
           <ReactMarkdown
             components={{
-              code({ inline, className, children, ...props }: CodeProps) {
+              // @ts-expect-error - ReactMarkdown types are tricky with custom components and extra props
+              code({ inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
                 const language = match ? match[1] : '';
                 const codeText = String(children).replace(/\n$/, '');
