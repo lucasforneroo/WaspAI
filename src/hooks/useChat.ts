@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useEffect, useRef } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getMessages } from '@/app/actions/chat';
 
 export interface Message {

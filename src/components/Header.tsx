@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PanelLeft } from 'lucide-react';
+import Image from 'next/image';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -20,7 +21,13 @@ export default function Header({ onToggleSidebar, user }: HeaderProps) {
         </button>
 
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="WaspAI Logo" width={56} height={56} className="object-contain drop-shadow-[0_0_18px_rgba(245,255,136,0.7)]" />
+          <Image 
+            src="/logo.png" 
+            alt="WaspAI Logo" 
+            width={56} 
+            height={56} 
+            className="object-contain drop-shadow-[0_0_18px_rgba(245,255,136,0.7)]" 
+          />
           <div className="flex flex-col">
             <div className="font-black text-yellow-wasp tracking-tighter text-3xl select-none drop-shadow-[0_0_15px_rgba(245,255,136,0.4)] opacity-100-forced leading-none">
               WaspAI
@@ -48,8 +55,5 @@ export default function Header({ onToggleSidebar, user }: HeaderProps) {
         </div>
       </div>
     </header>
-  );
-}
-</header>
   );
 }

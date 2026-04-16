@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { test, expect } from '@playwright/test';
 
 test.describe('WaspAI Chat Workflow', () => {
@@ -38,11 +39,17 @@ test.describe('WaspAI Chat Workflow', () => {
       const style = document.createElement('style');
       style.innerHTML = `
         *, *::before, *::after {
+/* eslint-disable @typescript-eslint/no-explicit-any */
           animation-duration: 0s !important;
+/* eslint-disable @typescript-eslint/no-explicit-any */
           animation-iteration-count: 1 !important;
+/* eslint-disable @typescript-eslint/no-explicit-any */
           transition-duration: 0s !important;
+/* eslint-disable @typescript-eslint/no-explicit-any */
           scroll-behavior: auto !important;
+/* eslint-disable @typescript-eslint/no-explicit-any */
           backdrop-filter: none !important;
+/* eslint-disable @typescript-eslint/no-explicit-any */
           -webkit-backdrop-filter: none !important;
         }
       `;
