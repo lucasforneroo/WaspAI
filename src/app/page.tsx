@@ -9,15 +9,33 @@ import LightPillar from '@/components/LightPillar';
 import { getChats } from '@/app/actions/chat';
 import { createClient } from '@/utils/supabase/client';
 
+interface UserData {
+  name: string;
+  avatar: string;
+  email: string | undefined;
+}
+
+interface ChatItem {
+  id: string;
+  title: string;
+  updated_at: string;
+}
+
+interface AppConfig {
+  model: string;
+  ragDepth: number;
+  bgEnabled: boolean;
+}
+
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [chats, setChats] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [chats, setChats] = useState<ChatItem[]>([]);
+  const [user, setUser] = useState<UserData | null>(null);
   
   // Estado de Configuración Global
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<AppConfig>({
     model: 'gemini-2.5-flash',
     ragDepth: 5,
     bgEnabled: true
@@ -28,7 +46,7 @@ export default function Home() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        const userData = {
+        const userData: UserData = {
           name: data.user.user_metadata.full_name || data.user.user_metadata.name || 'Developer',
           avatar: data.user.user_metadata.avatar_url,
           email: data.user.email
@@ -37,10 +55,10 @@ export default function Home() {
 
         // Guardar en la lista de cuentas conocidas para el login picker
         const saved = localStorage.getItem('waspai-known-accounts');
-        let knownAccounts = saved ? JSON.parse(saved) : [];
+        const knownAccounts = saved ? JSON.parse(saved) : [];
         
         // Evitar duplicados por email
-        if (!knownAccounts.find((acc: any) => acc.email === userData.email)) {
+        if (!knownAccounts.find((acc: UserData) => acc.email === userData.email)) {
           knownAccounts.push(userData);
           localStorage.setItem('waspai-known-accounts', JSON.stringify(knownAccounts));
         }
@@ -53,7 +71,10 @@ export default function Home() {
     const saved = localStorage.getItem('waspai-settings');
     if (saved) {
       try {
-        setConfig(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setTimeout(() => {
+          setConfig(parsed);
+        }, 0);
       } catch (e) {
         console.error('Error loading settings', e);
       }
@@ -61,18 +82,20 @@ export default function Home() {
   }, []);
 
   // Guardar config cuando cambie
-  const handleConfigChange = (newConfig: any) => {
+  const handleConfigChange = (newConfig: AppConfig) => {
     setConfig(newConfig);
     localStorage.setItem('waspai-settings', JSON.stringify(newConfig));
   };
 
   const fetchChats = useCallback(async () => {
     const data = await getChats();
-    setChats(data);
+    setChats(data as ChatItem[]);
   }, []);
 
   useEffect(() => {
-    fetchChats();
+    setTimeout(() => {
+      fetchChats();
+    }, 0);
   }, [fetchChats]);
 
   const handleNewChat = () => {

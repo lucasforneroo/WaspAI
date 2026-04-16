@@ -29,7 +29,13 @@ export default function Greeting({ userName }: GreetingProps) {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="mb-10"
       >
-        <img src="/logo.png" alt="WaspAI Logo" className="w-56 h-56 object-contain drop-shadow-[0_0_50px_rgba(245,255,136,0.5)]" />
+        <Image 
+          src="/logo.png" 
+          alt="WaspAI Logo" 
+          width={224} 
+          height={224} 
+          className="object-contain drop-shadow-[0_0_50px_rgba(245,255,136,0.5)]" 
+        />
       </motion.div>
 
       <div className="space-y-2">

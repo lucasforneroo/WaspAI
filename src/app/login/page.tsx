@@ -3,18 +3,27 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import LightPillar from '@/components/LightPillar'
-import { Plus, User, ArrowRight, Code } from 'lucide-react'
+import { Plus, ArrowRight, Code } from 'lucide-react'
+import Image from 'next/image'
+
+interface Account {
+  email: string;
+  name: string;
+  avatar: string;
+}
 
 export default function LoginPage() {
-  const [accounts, setAccounts] = useState<any[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
   const [showPicker, setShowPicker] = useState(false)
 
   useEffect(() => {
     // Cargar cuentas guardadas localmente
     const saved = localStorage.getItem('waspai-known-accounts')
     if (saved) {
-      setAccounts(JSON.parse(saved))
-      setShowPicker(true)
+      setTimeout(() => {
+        setAccounts(JSON.parse(saved))
+        setShowPicker(true)
+      }, 0)
     }
   }, [])
 
@@ -26,7 +35,7 @@ export default function LoginPage() {
       await supabase.auth.signOut();
     }
 
-    const options: any = {
+    const options: { redirectTo: string; queryParams?: Record<string, string> } = {
       redirectTo: `${window.location.origin}/auth/callback`,
     }
 
@@ -99,8 +108,14 @@ export default function LoginPage() {
                     onClick={() => handleGithubLogin(false)}
                     className="flex items-center gap-4 w-full p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-yellow-wasp/30 transition-all text-left"
                   >
-                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/20 shadow-md">
-                      <img src={acc.avatar} alt={acc.name} className="w-full h-full object-cover" />
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/20 shadow-md relative">
+                      <Image 
+                        src={acc.avatar} 
+                        alt={acc.name} 
+                        width={48}
+                        height={48}
+                        className="object-cover" 
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-bold text-slate-100">{acc.name}</p>

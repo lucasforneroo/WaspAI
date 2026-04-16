@@ -7,6 +7,7 @@ import { EXECUTION_PROMPT } from '@/prompts/execution';
 import { GITHUB_REVIEWER_PROMPT } from '@/prompts/github';
 import { SECURITY_PROMPT } from '@/prompts/security';
 import { createClient } from '@/utils/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const PROMPTS: Record<string, string> = {
   review: REVIEW_PROMPT,
@@ -18,6 +19,16 @@ const PROMPTS: Record<string, string> = {
   security: SECURITY_PROMPT,
   refactor: 'You are WaspAI, a staff engineer. Refactor the following code for better readability and performance without changing its functionality.'
 };
+
+interface Message {
+  role: 'user' | 'assistant' | 'model';
+  text: string;
+}
+
+interface RagDocument {
+  file_path: string;
+  content: string;
+}
 
 // Configuración de Helicone
 const getHeliconeOptions = () => {
@@ -72,7 +83,7 @@ async function getGitHubContext(text: string) {
   }
 }
 
-async function getLocalBrainContext(query: string, geminiKey: string, supabaseClient: any, depth: number = 5) {
+async function getLocalBrainContext(query: string, geminiKey: string, supabaseClient: SupabaseClient, depth: number = 5) {
   try {
     const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel(
@@ -105,11 +116,11 @@ async function getLocalBrainContext(query: string, geminiKey: string, supabaseCl
     }
 
     console.log(`✅ [RAG]: Encontrados ${documents.length} fragmentos relevantes.`);
-    console.log('📄 [RAG Files]:', documents.map((d: any) => d.file_path).join(', '));
+    console.log('📄 [RAG Files]:', (documents as RagDocument[]).map((d: RagDocument) => d.file_path).join(', '));
 
     return `\n\n[IMPORTANT: LOCAL CONTEXT FOUND]\n` +
       `Use the following code snippets from the current project to answer the query accurately. \n\n` +
-      documents.map((doc: any) => `--- FILE: ${doc.file_path} ---\n${doc.content}`).join('\n');
+      (documents as RagDocument[]).map((doc: RagDocument) => `--- FILE: ${doc.file_path} ---\n${doc.content}`).join('\n');
   } catch (err) {
     console.error('[Local Brain Error]:', err);
     return '';
@@ -186,7 +197,7 @@ export async function POST(req: Request) {
       getHeliconeOptions()
     );
 
-    const history = messages.slice(0, -1).map((m: any) => ({
+    const history = messages.slice(0, -1).map((m: Message) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.text }],
     }));
@@ -202,10 +213,11 @@ export async function POST(req: Request) {
           contents: [...history, { role: 'user', parts: [{ text: lastUserMessage }] }]
         });
         break; // Éxito, salimos del bucle
-      } catch (error: any) {
+      } catch (error: unknown) {
         serverAttempt++;
+        const errorMessage = error instanceof Error ? error.message : String(error);
         // Solo reintentamos si es un error 503 (Servidor ocupado)
-        if (error.message?.includes('503')) {
+        if (errorMessage.includes('503')) {
           console.warn(`⚠️ [API] Gemini Busy (Attempt ${serverAttempt}/${MAX_SERVER_RETRIES}). Retrying...`);
           if (serverAttempt === MAX_SERVER_RETRIES) throw error;
           await new Promise(resolve => setTimeout(resolve, 1000 * serverAttempt));
@@ -213,7 +225,7 @@ export async function POST(req: Request) {
         }
         
         // Si es un 429 (Cuota), no reintentamos en el servidor, tiramos el error para que el cliente lo maneje
-        if (error.message?.includes('429')) {
+        if (errorMessage.includes('429')) {
           console.error('🚫 [API] Gemini Quota Exceeded (429).');
           return new Response(JSON.stringify({ 
             error: 'API Quota Exceeded', 
@@ -243,14 +255,16 @@ export async function POST(req: Request) {
           await supabase.from('messages').insert([{ chat_id: currentChatId, role: 'assistant', content: fullResponse }]);
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
-        } catch (error: any) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: error.message })}\n\n`));
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`));
           controller.close();
         }
       }
     }), { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' } });
 
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }

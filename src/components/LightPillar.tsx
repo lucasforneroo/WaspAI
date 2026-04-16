@@ -51,7 +51,9 @@ const LightPillar: React.FC<LightPillarProps> = ({
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (!gl) {
-      setWebGLSupported(false);
+      setTimeout(() => {
+        setWebGLSupported(false);
+      }, 0);
     }
   }, []);
 
@@ -69,7 +71,15 @@ const LightPillar: React.FC<LightPillarProps> = ({
     if (isLowEndDevice && quality === 'high') effectiveQuality = 'medium';
     if (isMobile && quality !== 'low') effectiveQuality = 'low';
 
-    const qualitySettings = {
+    interface QualitySetting {
+      iterations: number;
+      waveIterations: number;
+      pixelRatio: number;
+      precision: string;
+      stepMultiplier: number;
+    }
+
+    const qualitySettings: Record<string, QualitySetting> = {
       low: { iterations: 24, waveIterations: 1, pixelRatio: 0.5, precision: 'mediump', stepMultiplier: 1.5 },
       medium: { iterations: 40, waveIterations: 2, pixelRatio: 0.65, precision: 'mediump', stepMultiplier: 1.2 },
       high: {
@@ -81,7 +91,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
       }
     };
 
-    const settings = (qualitySettings as any)[effectiveQuality] || qualitySettings.medium;
+    const settings = qualitySettings[effectiveQuality] || qualitySettings.medium;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -98,8 +108,10 @@ const LightPillar: React.FC<LightPillarProps> = ({
         stencil: false,
         depth: false
       });
-    } catch (error) {
-      setWebGLSupported(false);
+    } catch {
+      setTimeout(() => {
+        setWebGLSupported(false);
+      }, 0);
       return;
     }
 
@@ -245,7 +257,6 @@ const LightPillar: React.FC<LightPillarProps> = ({
     const animate = (currentTime: number) => {
       if (!materialRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-      const deltaTime = currentTime - lastTime;
       timeRef.current += 0.016 * rotationSpeedRef.current;
       const t = timeRef.current;
       materialRef.current.uniforms.uTime.value = t;
@@ -280,7 +291,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
       if (materialRef.current) materialRef.current.dispose();
       if (geometryRef.current) geometryRef.current.dispose();
     };
-  }, [webGLSupported, quality]);
+  }, [webGLSupported, quality, topColor, bottomColor, intensity, interactive, glowAmount, pillarWidth, pillarHeight, noiseIntensity, pillarRotation]);
 
   useEffect(() => {
     rotationSpeedRef.current = rotationSpeed;
@@ -302,6 +313,38 @@ const LightPillar: React.FC<LightPillarProps> = ({
     if (!materialRef.current) return;
     materialRef.current.uniforms.uIntensity.value = intensity;
   }, [intensity]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uInteractive.value = interactive;
+  }, [interactive]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uGlowAmount.value = glowAmount;
+  }, [glowAmount]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uPillarWidth.value = pillarWidth;
+  }, [pillarWidth]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uPillarHeight.value = pillarHeight;
+  }, [pillarHeight]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uNoiseIntensity.value = noiseIntensity;
+  }, [noiseIntensity]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    const pillarRotRad = (pillarRotation * Math.PI) / 180;
+    materialRef.current.uniforms.uPillarRotCos.value = Math.cos(pillarRotRad);
+    materialRef.current.uniforms.uPillarRotSin.value = Math.sin(pillarRotRad);
+  }, [pillarRotation]);
 
   if (!webGLSupported) {
     return (
