@@ -46,7 +46,13 @@ export default function Header({ onToggleSidebar, user }: HeaderProps) {
         )}
         <div className="w-9 h-9 rounded-xl bg-yellow-wasp overflow-hidden border-2 border-yellow-wasp/30 shadow-lg hover:scale-110 transition-transform cursor-pointer opacity-100-forced">
           {user?.avatar ? (
-            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+            <Image 
+              src={user.avatar} 
+              alt={user.name} 
+              width={36} 
+              height={36} 
+              className="w-full h-full object-cover" 
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-purple font-bold text-sm">
               {user?.name?.substring(0, 2).toUpperCase() || '??'}
