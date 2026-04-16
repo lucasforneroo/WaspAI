@@ -1,93 +1,110 @@
-# 🐝 WaspAI — Your Engineering Intelligence Partner
+# 🐝 WaspAI: The Engineering Terminal
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=for-the-badge&logo=supabase)](https://supabase.com/)
-[![Gemini API](https://img.shields.io/badge/Gemini-AI_Engine-orange?style=for-the-badge&logo=google-gemini)](https://ai.google.dev/)
-[![Three.js](https://img.shields.io/badge/Three.js-Visuals-white?style=for-the-badge&logo=three.js)](https://threejs.org/)
+![WaspAI Banner](/public/logo.png)
 
-**WaspAI** is not just another chatbot. It is a high-performance **AI Staff Engineer Assistant** designed to assist developers in critical tasks such as architecture review, deep debugging, and complex refactoring. Powered by a custom **RAG (Retrieval-Augmented Generation)** engine, WaspAI "reads" your local repository to provide context-aware solutions that a generic AI simply cannot match.
+> **WaspAI** no es solo otro chat de IA; es una terminal de ingeniería avanzada diseñada para arquitectos y desarrolladores que buscan precisión, observabilidad y una identidad visual disruptiva.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Visión General
 
-| Feature | Description | Tech Used |
-| :--- | :--- | :--- |
-| **Local Brain (RAG)** | Deep semantic search across your local files for context-aware responses. | Supabase pgvector + Gemini Embeddings |
-| **Multi-Mode Engine** | Specialized modes: `Review`, `Explain`, `Debug`, and `Refactor`. | Custom Prompt Engineering |
-| **Immersive UI** | High-end terminal aesthetic with real-time 3D shaders and fluid animations. | Three.js + Framer Motion |
-| **Multi-Account Login** | Seamlessly switch between different GitHub profiles with local persistence. | Supabase Auth + LocalStorage |
-| **Settings System** | Full control over the AI brain, RAG depth, and visual performance. | React State + Persistence |
+WaspAI es una plataforma "AI-First" construida sobre **Next.js 16**, optimizada para flujos de trabajo de ingeniería de software. Utiliza un ecosistema de agentes especializados para tareas de arquitectura, auditoría de seguridad y refactorización, todo bajo una infraestructura blindada.
 
----
+## 🛠️ Stack Tecnológico (The Power House)
 
-## 🛠 Tech Stack
+### Core
+- **Framework:** Next.js 16 (App Router + Turbopack)
+- **Runtime:** Node.js 20+
+- **Lenguaje:** TypeScript (Strict Mode)
+- **Estilos:** Tailwind CSS 4 + Framer Motion (Animaciones de alto rendimiento)
 
-- **Framework:** Next.js 15 (Turbopack) with App Router.
-- **AI Core:** Google Gemini 2.5 Flash API.
-- **Database & Auth:** Supabase (PostgreSQL with pgvector extension).
-- **Visuals:** Three.js (LightPillar shaders) & React Three Fiber.
-- **Animations:** Framer Motion (Interactive Dock and Modals).
-- **Styling:** TailwindCSS 4 with Backdrop Blur & Glassmorphism effects.
+### IA & Agentes
+- **LLM Engine:** Google Gemini Pro / Flash
+- **Observabilidad:** [Helicone](https://helicone.ai) (Monitoreo de latencia, costos y trazabilidad de prompts)
+- **Arquitectura:** Agentes especializados con capacidades de renderizado Mermaid.js en tiempo real.
 
----
-
-## 🧠 Architectural Highlights
-
-### 1. The RAG Pipeline (Local Brain)
-WaspAI uses a vector database to index your code. When you ask a question, the system:
-1. Generates an embedding of your query using `text-embedding-004`.
-2. Performs a similarity search in Supabase using `match_documents`.
-3. Injects the most relevant code snippets into the Gemini context.
-
-### 2. The Streaming Engine
-Unlike traditional APIs, WaspAI implements a manual **Server-Sent Events (SSE)** stream using `ReadableStream` and `TextEncoder`. This ensures sub-second latency and a "living" response feel.
-
-### 3. Multi-Account Persistence
-The login system tracks known accounts in `localStorage`, allowing developers to switch environments without losing their flow, while maintaining the security boundaries of GitHub's OAuth.
+### Backend & Persistencia
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase SSR Auth
+- **Real-time:** WebSockets / SSE para streaming de respuestas.
 
 ---
 
-## 📦 Installation & Setup
+## 🛡️ Infraestructura de Calidad (Zero Trust Engineering)
 
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/your-user/waspai.git
-   cd waspai
-   ```
+En WaspAI, la estabilidad no es negociable. Hemos implementado un ecosistema de herramientas para asegurar la resiliencia del sistema:
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### 1. Monitoreo & Error Tracking (Sentry)
+- **Integración:** SDK oficial `@sentry/nextjs`.
+- **Alcance:** Captura de errores en el Cliente, Servidor y Edge Runtime.
+- **Source Maps:** Subida automática de mapas de código en cada build para debugueo preciso.
+- **Session Replay:** Grabación visual de errores para una reproducción exacta del problema.
 
-3. **Configure Environment Variables:**
-   Create a `.env.local` file:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
-   GEMINI_API_KEY=your_google_ai_key
-   ```
+### 2. Observabilidad de LLMs (Helicone)
+- Proxy inteligente para trackear cada token gastado.
+- Análisis de performance de prompts y detección de cuellos de botella en la IA.
 
-4. **Initialize Database:**
-   Apply the migrations found in `/supabase/migrations` to enable `pgvector` and the document matching functions.
-
-5. **Index your repo:**
-   ```bash
-   npm run index-repo
-   ```
-
-6. **Run Development Server:**
-   ```bash
-   npm run dev
-   ```
+### 3. Testing E2E (Playwright)
+- Suite completa de tests de extremo a extremo.
+- Pruebas automáticas de flujos de chat, login y cambio de agentes.
+- Reportes HTML generados automáticamente en fallos.
 
 ---
 
-## 🎨 Visual Identity
-WaspAI uses a **"Cyber-Industrial"** aesthetic. The background features **LightPillars** (3D volumetric light shaders) that interact with the user's focus, while the UI components use high-end transparency and blur effects to maintain clarity over the dynamic background.
+## ⚙️ CI/CD Pipeline (GitHub Actions)
+
+Cada `push` a la rama principal dispara un flujo de trabajo automatizado que actúa como el "patovica" del código:
+
+1.  **Instalación Limpia:** Verificación de integridad de dependencias.
+2.  **Linting:** Validación de estándares de código (ESLint).
+3.  **Type-check:** Validación estricta de tipos de TypeScript.
+4.  **Build Check:** Verificación de que la aplicación compila correctamente.
+5.  **E2E Validation:** Ejecución de la suite de Playwright en un entorno de producción simulado.
 
 ---
 
-*Generated by WaspAI — Your Engineering Partner*
+## 🎨 Identidad Visual (The Wasp Identity)
+
+WaspAI utiliza una estética **Cyberpunk-Minimalista**.
+- **Colores:** Violeta Profundo, Gris Carbón y Amarillo Eléctrico (Wasp Yellow).
+- **UX:** Animaciones de "flotado" dinámico, Light Pillars procesados por WebGL y efectos de Glassmorphism.
+
+---
+
+## 📂 Estructura del Proyecto
+
+```bash
+WaspAI/
+├── .github/workflows/    # Automatización CI/CD
+├── public/               # Assets estáticos (Logo, Iconos)
+├── src/
+│   ├── app/             # Rutas, API y Lógica de servidor
+│   ├── components/      # Componentes UI (Atomic Design)
+│   ├── hooks/           # Lógica de estado y Chat
+│   ├── prompts/         # "Cerebro" de los agentes
+│   └── utils/           # Clientes de Supabase y Helpers
+├── tests/               # Suite de Playwright
+└── sentry.*.config.ts   # Configuraciones de monitoreo
+```
+
+## 🚀 Instalación y Desarrollo
+
+1. Clonar el repositorio.
+2. Instalar dependencias: `npm install`.
+3. Configurar variables de entorno (`.env.local`):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `GOOGLE_GENERATIVE_AI_API_KEY`
+   - `HELICONE_API_KEY`
+   - `SENTRY_AUTH_TOKEN`
+4. Correr en desarrollo: `npm run dev`.
+5. Correr calidad local: `npm run lint` && `npm run type-check`.
+
+---
+
+## 📄 Licencia
+
+Desarrollado con ❤️ para ingenieros que no se conforman con lo básico. WaspAI es una herramienta de alta precisión.
+
+---
+*Este proyecto está bajo monitoreo constante. Los errores son una oportunidad de mejora.* 🐝🚀
