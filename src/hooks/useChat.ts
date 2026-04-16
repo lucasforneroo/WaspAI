@@ -156,7 +156,9 @@ export function useChat(
                 if (parsed.chatId && !streamChatId) {
                   streamChatId = parsed.chatId;
                   currentStreamChatIdRef.current = streamChatId;
-                  onChatCreated(streamChatId);
+                  if (streamChatId) {
+                    onChatCreated(streamChatId);
+                  }
                 }
 
                 if (parsed.error) throw new Error(parsed.error);

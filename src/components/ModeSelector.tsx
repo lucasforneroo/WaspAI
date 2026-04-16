@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code2, Bug, BookOpen, Wand2, LucideIcon, BrainCircuit, Terminal, Layout } from 'lucide-react';
+import { Code2, Bug, BookOpen, Wand2, LucideIcon, BrainCircuit, Terminal, Layout, ShieldAlert } from 'lucide-react';
 
 interface Mode {
   id: string;

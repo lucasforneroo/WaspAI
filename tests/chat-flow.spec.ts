@@ -75,11 +75,11 @@ test.describe('WaspAI Chat Workflow', () => {
   });
 
   // Función de ayuda para inyección lateral de input (Opción A) con Foco
-  const sendLateralInput = async (page, selector, text) => {
+  const sendLateralInput = async (page: any, selector: string, text: string) => {
     const el = page.locator(selector);
     await el.waitFor({ state: 'visible', timeout: 30000 });
     await el.focus();
-    await page.evaluate(({ sel, val }) => {
+    await page.evaluate(({ sel, val }: { sel: string, val: string }) => {
       const element = document.querySelector(sel) as HTMLTextAreaElement;
       if (element) {
         element.focus();
@@ -92,7 +92,7 @@ test.describe('WaspAI Chat Workflow', () => {
   };
 
   // Función de ayuda para Clicks Lateral (Evita intercepciones)
-  const lateralClick = async (page, selector) => {
+  const lateralClick = async (page: any, selector: string) => {
     const locator = page.locator(selector).first();
     await locator.waitFor({ state: 'visible', timeout: 30000 });
     await locator.click({ force: true });
