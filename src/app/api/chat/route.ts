@@ -19,6 +19,26 @@ const PROMPTS: Record<string, string> = {
   refactor: 'You are WaspAI, a staff engineer. Refactor the following code for better readability and performance without changing its functionality.'
 };
 
+// Configuración de Helicone
+const getHeliconeOptions = () => {
+  const key = process.env.HELICONE_API_KEY;
+  if (!key) {
+    console.warn('⚠️ [Helicone]: No API Key found in environment.');
+    return undefined;
+  }
+  
+  // LOG PARA DEBUG: Vamos a ver si el SDK recibe esto
+  console.log('🚀 [Helicone]: Attempting to route through Helicone Gateway...');
+  
+  return {
+    baseUrl: "https://gateway.helicone.ai",
+    customHeaders: {
+      "Helicone-Auth": `Bearer ${key}`,
+      "Helicone-Target-URL": "https://generativelanguage.googleapis.com",
+    },
+  };
+};
+
 async function getGitHubContext(text: string) {
   // Regex para PRs y Repos
   const prRegex = /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/;
@@ -55,7 +75,10 @@ async function getGitHubContext(text: string) {
 async function getLocalBrainContext(query: string, geminiKey: string, supabaseClient: any, depth: number = 5) {
   try {
     const genAI = new GoogleGenerativeAI(geminiKey);
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+    const model = genAI.getGenerativeModel(
+      { model: "text-embedding-004" },
+      getHeliconeOptions()
+    );
 
     // Si la cuota de embeddings está agotada, esto va a fallar.
     // Lo envolvemos para que el chat siga funcionando aunque el RAG falle.
@@ -152,13 +175,16 @@ export async function POST(req: Request) {
     }]);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const modelToUse = config?.model || "gemini-2.5-flash";
+    const modelToUse = config?.model || "gemini-1.5-flash";
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
-    const model = genAI.getGenerativeModel({
-      model: modelToUse,
-      systemInstruction: basePrompt + ragContext + githubContext,
-    });
+    const model = genAI.getGenerativeModel(
+      {
+        model: modelToUse,
+        systemInstruction: basePrompt + ragContext + githubContext,
+      },
+      getHeliconeOptions()
+    );
 
     const history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
