@@ -11,10 +11,10 @@ interface GreetingProps {
 export default function Greeting({ userName }: GreetingProps) {
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 8 && hour > 5) return 'Madrugando para programar?';
-    if (hour < 12 && hour > 8) return 'Buenos días, ¿comenzamos?';
-    if (hour < 19 && hour > 12) return 'Buenas tardes, ¡a trabajar!';
-    if (hour < 24 && hour > 19) return 'Buenas noches, ¿descansamos o programamos?';
+    if (hour >= 5 && hour < 8) return 'Madrugando para programar?';
+    if (hour >= 8 && hour < 12) return 'Buenos días, ¿comenzamos?';
+    if (hour >= 12 && hour < 19) return 'Buenas tardes, ¡a trabajar!';
+    if (hour >= 19 && hour < 24) return 'Buenas noches, ¿descansamos o programamos?';
     return 'Despierto tan tarde? Eres todo un trasnochador!';
   };
 
