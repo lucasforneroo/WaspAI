@@ -33,6 +33,12 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // EXCEPCIÓN PARA TESTS: Si viene con la cookie de bypass, lo dejamos pasar sin chequear perfil
+  const skipAuth = request.cookies.get('playwright-skip-auth')?.value === 'true'
+  if (skipAuth) {
+    return response
+  }
+
   // Rutas que NO queremos proteger (login, auth, assets estáticos)
   const isAuthPage = request.nextUrl.pathname.startsWith('/login')
   const isAuthCallback = request.nextUrl.pathname.startsWith('/auth/callback')

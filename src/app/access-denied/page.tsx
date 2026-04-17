@@ -1,12 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { ShieldAlert, ArrowLeft, Mail } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, Mail, Copy, Check } from 'lucide-react';
 
 export default function AccessDenied() {
+  const [copied, setCopied] = useState(false);
+  const email = "lucasfornero2012@gmail.com";
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-screen bg-[#060010] flex flex-col items-center justify-center p-6 text-center">
       <motion.div
@@ -37,24 +46,43 @@ export default function AccessDenied() {
           ¡El panal está en <span className="text-yellow-wasp">Beta Privada</span>!
         </h2>
 
-        <p className="text-slate-400 mb-8 leading-relaxed">
-          Actualmente WaspAI está en una fase de pruebas controlada. Tu cuenta ha sido registrada, pero necesitas una invitación para comenzar a operar.
+        <p className="text-slate-400 mb-8 leading-relaxed text-sm">
+          WaspAI está en fase de pruebas controlada. Tu cuenta ha sido registrada, pero necesitás una invitación.
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
+          {/* Opción 1: Link Directo */}
           <a 
-            href="mailto:lucasfornero2012@gmail.com?subject=Solicitud de Acceso a WaspAI" 
+            href={`mailto:${email}?subject=Solicitud de Acceso a WaspAI`}
+            className="flex items-center justify-center gap-3 w-full py-4 bg-yellow-wasp text-purple-dark rounded-2xl transition-all font-black hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(245,255,136,0.2)]"
+          >
+            <Mail size={18} />
+            Solicitar por Email
+          </a>
+
+          {/* Opción 2: Copiar Email (Plan B) */}
+          <button 
+            onClick={copyEmail}
             className="flex items-center justify-center gap-3 w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-slate-200 transition-all font-bold group"
           >
-            <Mail size={18} className="group-hover:text-yellow-wasp transition-colors" />
-            Solicitar Acceso
-          </a>
+            {copied ? (
+              <>
+                <Check size={18} className="text-green-400" />
+                <span className="text-green-400">¡Email Copiado!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={18} className="group-hover:text-yellow-wasp transition-colors" />
+                Copiar dirección
+              </>
+            )}
+          </button>
 
           <Link 
             href="/login" 
-            className="flex items-center justify-center gap-2 w-full text-sm text-slate-500 hover:text-yellow-wasp transition-colors font-medium"
+            className="flex items-center justify-center gap-2 w-full pt-4 text-xs text-slate-500 hover:text-yellow-wasp transition-colors font-black uppercase tracking-widest"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={12} />
             Volver al Login
           </Link>
         </div>
