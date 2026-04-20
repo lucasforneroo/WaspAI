@@ -187,22 +187,27 @@ export async function POST(req: Request) {
       content: lastUserMessage
     }]);
 
+    // Forzamos la versión v1 de la API para evitar el 404 de v1beta con gemini-1.5
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // VALIDACIÓN DE MODELO: Evitamos typos como gemini-2.5-flash
+    // VALIDACIÓN DE MODELO: Evitamos typos y aseguramos modelos estables
     let modelToUse = config?.model || "gemini-1.5-flash";
     if (modelToUse.includes('2.5')) {
-      console.warn(`⚠️ [API] Unsupported model requested: ${modelToUse}. Falling back to gemini-1.5-flash.`);
       modelToUse = "gemini-1.5-flash";
     }
+    
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
+    // Usamos el modelo con la versión v1 explícita
     const model = genAI.getGenerativeModel(
       {
         model: modelToUse,
         systemInstruction: basePrompt + ragContext + githubContext,
       },
-      getHeliconeOptions()
+      {
+        ...getHeliconeOptions(),
+        apiVersion: 'v1' // <--- ESTO ES LA CLAVE
+      }
     );
 
     const history = messages.slice(0, -1).map((m: Message) => ({
