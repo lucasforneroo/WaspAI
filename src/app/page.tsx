@@ -36,7 +36,7 @@ export default function Home() {
   // Estado de Configuración Global
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [config, setConfig] = useState<AppConfig>({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-1.5-flash',
     ragDepth: 5,
     bgEnabled: true
   });

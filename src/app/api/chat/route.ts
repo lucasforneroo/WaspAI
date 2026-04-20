@@ -127,6 +127,8 @@ async function getLocalBrainContext(query: string, geminiKey: string, supabaseCl
   }
 }
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -186,7 +188,13 @@ export async function POST(req: Request) {
     }]);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const modelToUse = config?.model || "gemini-1.5-flash";
+    
+    // VALIDACIÓN DE MODELO: Evitamos typos como gemini-2.5-flash
+    let modelToUse = config?.model || "gemini-1.5-flash";
+    if (modelToUse.includes('2.5')) {
+      console.warn(`⚠️ [API] Unsupported model requested: ${modelToUse}. Falling back to gemini-1.5-flash.`);
+      modelToUse = "gemini-1.5-flash";
+    }
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
     const model = genAI.getGenerativeModel(

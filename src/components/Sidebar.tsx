@@ -48,10 +48,10 @@ export default function Sidebar({ isOpen, chats, activeChatId, onNewChat, onSele
   return (
     <aside 
       className={`${
-        isOpen ? 'w-[260px]' : 'w-0'
+        isOpen ? 'w-[220px]' : 'w-0'
       } bg-[#171717] transition-all duration-300 flex flex-col h-full overflow-hidden shrink-0`}
     >
-      <div className="p-3 flex flex-col h-full w-[260px] text-sm text-[#ececec]">
+      <div className="p-3 flex flex-col h-full w-[220px] text-sm text-[#ececec]">
         {/* Top actions */}
         <button 
           onClick={onNewChat}

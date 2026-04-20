@@ -100,8 +100,8 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
 
   return (
     <div className="flex flex-col h-full items-center relative">
-      <div ref={scrollRef} className="flex-1 w-full overflow-y-auto px-4 pt-4 pb-32 scroll-smooth">
-        <div className="max-w-3xl mx-auto space-y-8 min-h-full flex flex-col justify-center py-10">
+      <div ref={scrollRef} className="flex-1 w-full overflow-y-auto px-4 pt-4 pb-24 scroll-smooth">
+        <div className={`max-w-3xl mx-auto space-y-6 flex flex-col ${messages.length === 0 ? 'pt-12 pb-6' : 'py-6'}`}>
           {messages.length === 0 && !loading && (
             <Greeting userName={user?.name || 'Developer'} />
           )}
@@ -113,7 +113,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
               <div className="w-8 h-8 rounded-lg bg-yellow-wasp/10 flex items-center justify-center border border-yellow-wasp/20">
                 <Loader2 size={18} className="text-yellow-wasp animate-spin" />
               </div>
-              <div className="bg-purple-light/30 rounded-2xl px-5 py-3 text-slate-100 italic text-sm border border-purple-light/20 backdrop-blur-md opacity-100-forced">
+              <div className="bg-purple-light/30 rounded-2xl px-5 py-2 text-slate-100 italic text-sm border border-purple-light/20 backdrop-blur-md opacity-100-forced">
                 WaspAI está analizando...
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
       </div>
 
       {/* Input Terminal Area */}
-      <div className="w-full max-w-3xl p-4 mb-4 flex flex-col items-center">
+      <div className="w-full max-w-3xl p-3 mb-2 flex flex-col items-center">
         
         {/* AGENT SELECTOR (Top attached) */}
         <div className="relative w-full">
@@ -140,7 +140,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                     <button
                       key={agent.id}
                       onClick={() => { setActiveAgent(agent.id); setIsAgentMenuOpen(false); }}
-                      className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all ${
+                      className={`flex items-center gap-3 w-full p-2.5 rounded-xl transition-all ${
                         activeAgent === agent.id ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/5'
                       }`}
                     >
@@ -155,21 +155,21 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
 
           <button 
             onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1a141b] border-t border-l border-r border-purple-light/30 rounded-t-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-yellow-wasp transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 bg-[#1a141b] border-t border-l border-r border-purple-light/30 rounded-t-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-yellow-wasp transition-all"
           >
             <span className={currentAgent.color}>{currentAgent.icon}</span>
-            Active Agent: <span className="text-white">{currentAgent.name}</span>
-            <ChevronUp size={12} className={`transition-transform ${isAgentMenuOpen ? 'rotate-180' : ''}`} />
+            Agent: <span className="text-white">{currentAgent.name}</span>
+            <ChevronUp size={10} className={`transition-transform ${isAgentMenuOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
         {/* Textarea Container */}
-        <div className="w-full relative bg-[#3b2a3d]/90 backdrop-blur-lg rounded-b-2xl rounded-tr-2xl border border-purple-light/40 focus-within:border-yellow-wasp transition-all p-2 shadow-2xl opacity-100-forced">
+        <div className="w-full relative bg-[#3b2a3d]/90 backdrop-blur-lg rounded-b-xl rounded-tr-xl border border-purple-light/40 focus-within:border-yellow-wasp transition-all p-1.5 shadow-2xl opacity-100-forced">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Waiting for command in ${mode.toUpperCase()} mode...`}
-            className="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-4 text-slate-100 placeholder-slate-500 min-h-[80px] text-sm opacity-100-forced"
+            placeholder={`Command in ${mode.toUpperCase()}...`}
+            className="w-full bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-slate-100 placeholder-slate-500 min-h-[60px] text-sm opacity-100-forced"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -178,17 +178,17 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
             }}
           />
           
-          <div className="flex items-center justify-between px-2 pb-2">
-            <div className="flex items-center gap-1 relative">
-              <button className="p-2 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
-                <Paperclip size={20} />
+          <div className="flex items-center justify-between px-1 pb-1">
+            <div className="flex items-center gap-0.5 relative">
+              <button className="p-1.5 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
+                <Paperclip size={18} />
               </button>
-              <button className="p-2 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
-                <Mic size={20} />
+              <button className="p-1.5 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
+                <Mic size={18} />
               </button>
 
               {/* MODE SELECTOR (Inside action bar) */}
-              <div className="relative ml-2 border-l border-white/10 pl-2">
+              <div className="relative ml-1 border-l border-white/10 pl-1">
                 <AnimatePresence>
                   {isModeMenuOpen && (
                     <motion.div 
@@ -206,7 +206,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                               else setMode(m.id);
                               if (!m.isToggle) setIsModeMenuOpen(false);
                             }}
-                            className={`flex items-center justify-between w-full p-2.5 rounded-xl transition-all ${
+                            className={`flex items-center justify-between w-full p-2 rounded-xl transition-all ${
                               (m.isToggle ? useLocalBrain : mode === m.id) 
                               ? 'bg-yellow-wasp/10 text-yellow-wasp' 
                               : 'text-slate-400 hover:bg-white/5'
@@ -217,7 +217,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                               <span className="text-xs font-bold">{m.name}</span>
                             </div>
                             {m.isToggle && (
-                              <div className={`w-2 h-2 rounded-full ${useLocalBrain ? 'bg-yellow-wasp shadow-[0_0_8px_#f5ff88]' : 'bg-slate-600'}`} />
+                              <div className={`w-1.5 h-1.5 rounded-full ${useLocalBrain ? 'bg-yellow-wasp shadow-[0_0_8px_#f5ff88]' : 'bg-slate-600'}`} />
                             )}
                           </button>
                         ))}
@@ -228,11 +228,11 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                 
                 <button 
                   onClick={() => setIsModeMenuOpen(!isModeMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-slate-200 transition-all"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[9px] font-bold uppercase tracking-wider text-slate-200 transition-all"
                 >
-                  Mode: <span className="text-yellow-wasp">{mode}</span>
-                  {useLocalBrain && <Brain size={12} className="text-yellow-wasp animate-pulse" />}
-                  <ChevronUp size={12} className={`transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-yellow-wasp">{mode}</span>
+                  {useLocalBrain && <Brain size={10} className="text-yellow-wasp animate-pulse" />}
+                  <ChevronUp size={10} className={`transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
               </div>
             </div>
@@ -240,17 +240,17 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
             <button 
               onClick={handleSend}
               disabled={!input.trim() || loading}
-              className={`p-2 rounded-xl transition-all opacity-100-forced ${
+              className={`p-1.5 rounded-lg transition-all opacity-100-forced ${
                 input.trim() && !loading
                 ? 'bg-yellow-wasp text-purple shadow-[0_0_20px_rgba(245,255,136,0.2)] hover:scale-105' 
                 : 'bg-purple-dark text-slate-500 opacity-50'
               }`}
             >
-              {loading ? <Loader2 size={22} className="animate-spin" /> : <ArrowUp size={22} strokeWidth={3} />}
+              {loading ? <Loader2 size={20} className="animate-spin" /> : <ArrowUp size={20} strokeWidth={3} />}
             </button>
           </div>
         </div>
-        <p className="text-[10px] text-center mt-2 text-slate-500 font-bold uppercase tracking-widest opacity-100-forced">
+        <p className="text-[9px] text-center mt-1.5 text-slate-500 font-bold uppercase tracking-widest opacity-100-forced">
           WaspAI Engineering Terminal — April 2026 Edition
         </p>
       </div>

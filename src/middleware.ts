@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // EXCEPCIÓN PARA TESTS: Si viene con la cookie de bypass, lo dejamos pasar sin chequear perfil
+  // EXCEPCIÓN PARA TESTS: Si viene con la cookie de bypass, lo dejamos pasar sin chequear nada
   const skipAuth = request.cookies.get('playwright-skip-auth')?.value === 'true'
   if (skipAuth) {
     return response
@@ -49,22 +49,13 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // 1. Si no hay usuario, al login
+  // Si no hay usuario, al login
   if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // 2. Si hay usuario, chequear la Whitelist (profiles)
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_allowed')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !profile.is_allowed) {
-    // Si no está permitido, lo mandamos a la página de denegado
-    return NextResponse.redirect(new URL('/access-denied', request.url))
-  }
+  // POLÍTICA DE PUERTAS ABIERTAS: Ya no chequeamos whitelist.
+  // Cualquier usuario autenticado puede entrar y el RLS se encarga del aislamiento.
 
   return response
 }
