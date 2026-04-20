@@ -114,7 +114,7 @@ test.describe('WaspAI Chat Workflow', () => {
     await lateralClick(page, sendButton);
 
     // 2. Cambiar a modo Arquitectura
-    await lateralClick(page, 'button:has-text("Active Agent")');
+    await lateralClick(page, 'button:has-text("Agent:")');
     const archAgentBtn = 'button:has-text("Mapeo de Arquitectura")';
     await lateralClick(page, archAgentBtn);
 
@@ -131,7 +131,7 @@ test.describe('WaspAI Chat Workflow', () => {
     const sendButton = 'button:has(svg.lucide-arrow-up)';
 
     // 1. Cambiar a Agente de Seguridad
-    await lateralClick(page, 'button:has-text("Active Agent")');
+    await lateralClick(page, 'button:has-text("Agent:")');
     const secAgentBtn = 'button:has-text("Agente de Seguridad")';
     await lateralClick(page, secAgentBtn);
 
