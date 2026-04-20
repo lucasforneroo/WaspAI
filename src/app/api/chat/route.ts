@@ -187,25 +187,21 @@ export async function POST(req: Request) {
       content: lastUserMessage
     }]);
 
-    // Forzamos la versión v1 de la API para estabilidad
+    // Volvemos a v1beta y al modelo que el usuario confirmó que funcionaba
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // VALIDACIÓN DE MODELO: Evitamos typos y aseguramos modelos estables
-    let modelToUse = config?.model || "gemini-1.5-flash";
-    if (modelToUse.includes('2.5')) {
-      modelToUse = "gemini-1.5-flash";
-    }
+    // Dejamos el modelo que el usuario indica como estable para su entorno
+    const modelToUse = config?.model || "gemini-2.5-flash";
     
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
-    // USAMOS v1 (Estable) sin el campo systemInstruction que está fallando
+    // USAMOS v1beta (Donde gemini-1.5/2.5 y las systemInstructions son nativas)
     const model = genAI.getGenerativeModel(
       { model: modelToUse },
-      { ...getHeliconeOptions(), apiVersion: 'v1' }
+      { ...getHeliconeOptions(), apiVersion: 'v1beta' }
     );
 
-    // INYECCIÓN DE CONTEXTO: En lugar de usar systemInstruction (que falla en v1), 
-    // inyectamos las instrucciones directamente en el prompt.
+    // Inyección de contexto manual para garantizar que el modelo siga la "persona" sin errores de esquema
     const fullPrompt = `[SYSTEM_INSTRUCTION]\n${basePrompt}${ragContext}${githubContext}\n\n[USER_MESSAGE]\n${lastUserMessage}`;
 
     const history = messages.slice(0, -1).map((m: Message) => ({
