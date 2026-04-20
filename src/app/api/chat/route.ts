@@ -202,11 +202,14 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel(
       {
         model: modelToUse,
-        systemInstruction: basePrompt + ragContext + githubContext,
+        systemInstruction: {
+          role: 'system',
+          parts: [{ text: basePrompt + ragContext + githubContext }]
+        }
       },
       {
         ...getHeliconeOptions(),
-        apiVersion: 'v1' // <--- ESTO ES LA CLAVE
+        apiVersion: 'v1'
       }
     );
 
