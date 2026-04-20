@@ -187,7 +187,7 @@ export async function POST(req: Request) {
       content: lastUserMessage
     }]);
 
-    // Forzamos la versión v1 de la API para evitar el 404 de v1beta con gemini-1.5
+    // Forzamos la versión v1 de la API para estabilidad
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
     // VALIDACIÓN DE MODELO: Evitamos typos y aseguramos modelos estables
@@ -198,20 +198,15 @@ export async function POST(req: Request) {
     
     const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
 
-    // Usamos el modelo con la versión v1 explícita
+    // USAMOS v1 (Estable) sin el campo systemInstruction que está fallando
     const model = genAI.getGenerativeModel(
-      {
-        model: modelToUse,
-        systemInstruction: {
-          role: 'system',
-          parts: [{ text: basePrompt + ragContext + githubContext }]
-        }
-      },
-      {
-        ...getHeliconeOptions(),
-        apiVersion: 'v1'
-      }
+      { model: modelToUse },
+      { ...getHeliconeOptions(), apiVersion: 'v1' }
     );
+
+    // INYECCIÓN DE CONTEXTO: En lugar de usar systemInstruction (que falla en v1), 
+    // inyectamos las instrucciones directamente en el prompt.
+    const fullPrompt = `[SYSTEM_INSTRUCTION]\n${basePrompt}${ragContext}${githubContext}\n\n[USER_MESSAGE]\n${lastUserMessage}`;
 
     const history = messages.slice(0, -1).map((m: Message) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
@@ -226,7 +221,7 @@ export async function POST(req: Request) {
     while (serverAttempt < MAX_SERVER_RETRIES) {
       try {
         result = await model.generateContentStream({
-          contents: [...history, { role: 'user', parts: [{ text: lastUserMessage }] }]
+          contents: [...history, { role: 'user', parts: [{ text: fullPrompt }] }]
         });
         break; // Éxito, salimos del bucle
       } catch (error: unknown) {
