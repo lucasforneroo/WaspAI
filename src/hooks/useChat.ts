@@ -176,7 +176,7 @@ export function useChat(
                     return updated;
                   });
                 }
-              } catch (e) {
+              } catch {
                 // Si el JSON es inválido, puede ser un chunk cortado, lo guardamos para el siguiente ciclo
                 buffer = 'data: ' + data + '\n' + buffer;
               }

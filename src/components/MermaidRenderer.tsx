@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useId } from 'react';
 import { createPortal } from 'react-dom';
 import mermaid from 'mermaid';
-import { AlertCircle, Copy, Check, Maximize2, Minimize2, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import { AlertCircle, Copy, Check, Maximize2, Minimize2, ZoomIn, ZoomOut, Move, Zap } from 'lucide-react';
 
 // Configuración de Mermaid para el estilo WaspAI Neon
 mermaid.initialize({

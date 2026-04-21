@@ -46,7 +46,7 @@ export async function getMessages(chatId: string) {
   }
 
   // Traemos el modo del chat
-  const { data: chat, error: chatError } = await supabase
+  const { data: chat } = await supabase
     .from('chats')
     .select('mode')
     .eq('id', chatId)

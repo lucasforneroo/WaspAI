@@ -34,7 +34,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
     }
   }, []);
 
-  const { messages, loading, error, sendMessage } = useChat(activeChatId, onChatCreated, handleModeLoaded);
+  const { messages, loading, sendMessage } = useChat(activeChatId, onChatCreated, handleModeLoaded);
   const [input, setInput] = useState('');
   const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
   const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
@@ -67,16 +67,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
     
     // COMANDO DE TEST VISUAL PARA SEGURIDAD
     if (currentInput.startsWith('/test-security')) {
-      const level = currentInput.split(' ')[1]?.toUpperCase() || 'CRITICAL';
-      const testMsg = { 
-        role: 'assistant' as const, 
-        text: `[SEVERITY: ${level}]\n# 🛡️ Test Security Audit\nThis is a simulated ${level} vulnerability report to test the UI pulsing effect.` 
-      };
       // Actualizamos los mensajes localmente para ver el efecto
-      // Usamos el hook de useChat indirectamente o simulamos el setMessages si lo tuviéramos
-      // Pero como setMessages es interno del hook, mejor mandamos un mensaje que el hook ignore
-      // pero que nosotros podamos ver. En este caso, lo ideal es que el usuario lo vea.
-      // Voy a hacer una pequeña trampa para que funcione:
       return; 
     }
 
