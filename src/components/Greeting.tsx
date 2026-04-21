@@ -23,28 +23,28 @@ export default function Greeting({ userName }: GreetingProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="flex flex-row items-center justify-center gap-3 py-4 text-left max-w-xl mx-auto"
+      className="flex flex-row items-center justify-center gap-4 py-6 text-left max-w-2xl mx-auto"
     >
       <motion.div
-        animate={{ y: [0, -4, 0] }}
+        animate={{ y: [0, -5, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="flex-shrink-0"
       >
         <Image 
           src="/logo.png" 
           alt="WaspAI Logo" 
-          width={48} 
-          height={48} 
+          width={56} 
+          height={56} 
           priority
-          className="object-contain drop-shadow-[0_0_15px_rgba(245,255,136,0.3)]" 
+          className="object-contain drop-shadow-[0_0_20px_rgba(245,255,136,0.4)]" 
         />
       </motion.div>
 
-      <div className="space-y-0">
-        <h1 className="text-xl md:text-2xl font-medium tracking-tight text-slate-100 italic font-serif">
+      <div className="space-y-0.5">
+        <h1 className="text-2xl md:text-3xl font-medium tracking-tight text-slate-100 italic font-serif">
           {getTimeOfDay()}, <span className="text-yellow-wasp not-italic font-sans font-bold">{userName}</span>
         </h1>
-        <p className="text-sm md:text-base text-slate-400 font-medium leading-none">
+        <p className="text-base md:text-lg text-slate-400 font-medium leading-none">
           ¿En qué código vamos a trabajar hoy?
         </p>
       </div>
