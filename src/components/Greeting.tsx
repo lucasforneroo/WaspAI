@@ -35,6 +35,7 @@ export default function Greeting({ userName }: GreetingProps) {
           alt="WaspAI Logo" 
           width={48} 
           height={48} 
+          priority
           className="object-contain drop-shadow-[0_0_15px_rgba(245,255,136,0.3)]" 
         />
       </motion.div>

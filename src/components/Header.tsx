@@ -26,6 +26,7 @@ export default function Header({ onToggleSidebar, user }: HeaderProps) {
             alt="WaspAI Logo" 
             width={56} 
             height={56} 
+            priority
             className="object-contain drop-shadow-[0_0_18px_rgba(245,255,136,0.7)]" 
           />
           <div className="flex flex-col">

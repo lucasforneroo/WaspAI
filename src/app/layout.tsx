@@ -13,8 +13,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WaspAI - Your Engineering Partner",
-  description: "Advanced AI-powered software engineering assistant",
+  title: "WaspAI | Advanced Engineering Terminal",
+  description: "Advanced AI-powered software engineering assistant for Staff Engineers. Architecture mapping, security audits, and code refactoring.",
+  openGraph: {
+    title: "WaspAI | Your Engineering Partner",
+    description: "The next generation of Engineering Intelligence. Specialized agents for high-performance teams.",
+    url: "https://wasp-ai.vercel.app",
+    siteName: "WaspAI",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 800,
+      },
+    ],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WaspAI | Engineering Terminal",
+    description: "AI-powered assistant for advanced software architecture and security.",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({
