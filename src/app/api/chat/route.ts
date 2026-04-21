@@ -193,7 +193,29 @@ export async function POST(req: Request) {
     // Dejamos el modelo que el usuario indica como estable para su entorno
     const modelToUse = config?.model || "gemini-2.5-flash";
     
-    const basePrompt = activeAgent !== 'general' ? (PROMPTS[activeAgent] || PROMPTS[mode]) : PROMPTS[mode];
+    // SMART INTENT ROUTING (Lead Engineer Level)
+    // Si el usuario usa el agente 'general', intentamos detectar si la consulta
+    // amerita activar un cerebro especializado automáticamente.
+    let activePrompt = PROMPTS[mode];
+    
+    if (activeAgent !== 'general') {
+      activePrompt = PROMPTS[activeAgent] || PROMPTS[mode];
+    } else {
+      // Detección de intención por Keywords
+      const lowerMsg = lastUserMessage.toLowerCase();
+      if (lowerMsg.includes('vulnerabilidad') || lowerMsg.includes('seguridad') || lowerMsg.includes('ataque') || lowerMsg.includes('inyección')) {
+        console.log('🎯 [Smart Routing]: Security Agent Activated');
+        activePrompt = PROMPTS.security;
+      } else if (lowerMsg.includes('arquitectura') || lowerMsg.includes('diagrama') || lowerMsg.includes('infraestructura')) {
+        console.log('🎯 [Smart Routing]: Architecture Agent Activated');
+        activePrompt = PROMPTS.architecture;
+      } else if (lowerMsg.includes('github') || lowerMsg.includes('pull request') || lowerMsg.includes('pr ')) {
+        console.log('🎯 [Smart Routing]: GitHub Agent Activated');
+        activePrompt = PROMPTS.github;
+      }
+    }
+
+    const basePrompt = activePrompt;
 
     // USAMOS v1beta (Donde gemini-1.5/2.5 y las systemInstructions son nativas)
     const model = genAI.getGenerativeModel(
