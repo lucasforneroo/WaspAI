@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import Greeting from './Greeting';
 import { useChat } from '../hooks/useChat';
+import { useUI } from '@/context/UIContext';
 import { 
   Mic, Paperclip, ArrowUp, Loader2, 
   ChevronUp, Terminal, Map, GitBranch, ShieldAlert, 
@@ -20,6 +21,7 @@ interface ChatProps {
 }
 
 export default function Chat({ activeChatId, onChatCreated, config, user }: ChatProps) {
+  const { isMobile } = useUI();
   const [mode, setMode] = useState('review');
   const [activeAgent, setActiveAgent] = useState('general');
   const [useLocalBrain, setUseLocalBrain] = useState(false);
@@ -91,8 +93,8 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
 
   return (
     <div className="flex flex-col h-full items-center relative">
-      <div ref={scrollRef} className="flex-1 w-full overflow-y-auto px-4 pt-4 pb-24 scroll-smooth">
-        <div className={`max-w-3xl mx-auto space-y-6 flex flex-col ${messages.length === 0 ? 'pt-12 pb-6' : 'py-6'}`}>
+      <div ref={scrollRef} className={`flex-1 w-full overflow-y-auto ${isMobile ? 'px-2 pt-2' : 'px-4 pt-4'} pb-24 scroll-smooth`}>
+        <div className={`max-w-3xl mx-auto space-y-6 flex flex-col ${messages.length === 0 ? (isMobile ? 'pt-6 pb-4' : 'pt-12 pb-6') : 'py-6'}`}>
           {messages.length === 0 && !loading && (
             <Greeting userName={user?.name || 'Developer'} />
           )}
@@ -114,7 +116,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
       </div>
 
       {/* Input Terminal Area */}
-      <div className="w-full max-w-3xl p-3 mb-2 flex flex-col items-center">
+      <div className={`w-full max-w-3xl ${isMobile ? 'p-2 mb-0' : 'p-3 mb-2'} flex flex-col items-center`}>
         
         {/* AGENT SELECTOR (Top attached) */}
         <div className="relative w-full">
@@ -124,7 +126,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute bottom-full left-0 mb-2 w-64 bg-[#1a141b] border border-purple-light/30 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl"
+                className={`absolute bottom-full left-0 mb-2 ${isMobile ? 'w-full' : 'w-64'} bg-[#1a141b] border border-purple-light/30 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl`}
               >
                 <div className="p-2 space-y-1">
                   {agents.map((agent) => (
@@ -160,7 +162,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={`Command in ${mode.toUpperCase()}...`}
-            className="w-full bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-slate-100 placeholder-slate-500 min-h-[60px] text-sm opacity-100-forced"
+            className={`w-full bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-slate-100 placeholder-slate-500 ${isMobile ? 'min-h-[50px]' : 'min-h-[60px]'} text-sm opacity-100-forced`}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -174,9 +176,12 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
               <button className="p-1.5 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
                 <Paperclip size={18} />
               </button>
-              <button className="p-1.5 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
-                <Mic size={18} />
-              </button>
+              
+              {!isMobile && (
+                <button className="p-1.5 text-slate-300 hover:text-yellow-wasp transition-colors rounded-lg hover:bg-purple-light/20 opacity-100-forced">
+                  <Mic size={18} />
+                </button>
+              )}
 
               {/* MODE SELECTOR (Inside action bar) */}
               <div className="relative ml-1 border-l border-white/10 pl-1">
@@ -186,7 +191,7 @@ export default function Chat({ activeChatId, onChatCreated, config, user }: Chat
                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                      className="absolute bottom-full left-0 mb-4 w-48 bg-[#1a141b] border border-purple-light/30 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl"
+                      className={`absolute bottom-full ${isMobile ? '-left-20' : 'left-0'} mb-4 w-48 bg-[#1a141b] border border-purple-light/30 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl`}
                     >
                       <div className="p-2 space-y-1">
                         {modes.map((m) => (

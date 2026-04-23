@@ -3,18 +3,20 @@
 import React from 'react';
 import { PanelLeft } from 'lucide-react';
 import Image from 'next/image';
+import { useUI } from '@/context/UIContext';
 
 interface HeaderProps {
-  onToggleSidebar: () => void;
   user?: { name: string; avatar: string };
 }
 
-export default function Header({ onToggleSidebar, user }: HeaderProps) {
+export default function Header({ user }: HeaderProps) {
+  const { toggleSidebar } = useUI();
+
   return (
     <header className="h-20 border-b border-purple-light/10 flex items-center px-8 justify-between bg-[#3b2a3d]/30 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
       <div className="flex items-center gap-6">
         <button 
-          onClick={onToggleSidebar}
+          onClick={toggleSidebar}
           className="p-2.5 hover:bg-white/10 rounded-xl transition-all text-yellow-wasp hover:scale-110 active:scale-95 opacity-100-forced shadow-lg"
         >
           <PanelLeft size={22} />

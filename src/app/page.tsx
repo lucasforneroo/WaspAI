@@ -8,6 +8,7 @@ import SettingsModal from '@/components/SettingsModal';
 import LightPillar from '@/components/LightPillar';
 import { getChats } from '@/app/actions/chat';
 import { createClient } from '@/utils/supabase/client';
+import { useUI } from '@/context/UIContext';
 
 interface UserData {
   name: string;
@@ -28,7 +29,7 @@ interface AppConfig {
 }
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen, isMobile, closeSidebar } = useUI();
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [user, setUser] = useState<UserData | null>(null);
@@ -104,8 +105,8 @@ export default function Home() {
 
   const handleSelectChat = (id: string) => {
     setActiveChatId(id);
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
+    if (isMobile) {
+      closeSidebar();
     }
   };
 
@@ -144,7 +145,6 @@ export default function Home() {
       
       <div className="relative z-10 flex w-full h-full overflow-hidden">
         <Sidebar 
-          isOpen={isSidebarOpen} 
           chats={chats} 
           activeChatId={activeChatId}
           onNewChat={handleNewChat}
@@ -154,7 +154,7 @@ export default function Home() {
         />
 
         <main className="flex-1 flex flex-col relative overflow-hidden h-full">
-          <Header onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} user={user || undefined} />
+          <Header user={user || undefined} />
           <div className="flex-1 overflow-hidden h-full">
             <Chat 
               activeChatId={activeChatId} 
