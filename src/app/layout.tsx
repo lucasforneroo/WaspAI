@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 export const metadata: Metadata = {
   title: "WaspAI | Advanced Engineering Terminal",
   description: "Advanced AI-powered software engineering assistant for Staff Engineers. Architecture mapping, security audits, and code refactoring.",
@@ -24,8 +25,6 @@ export const metadata: Metadata = {
     title: "WaspAI",
   },
   openGraph: {
-...
-
     title: "WaspAI | Your Engineering Partner",
     description: "The next generation of Engineering Intelligence. Specialized agents for high-performance teams.",
     url: "https://wasp-ai.vercel.app",

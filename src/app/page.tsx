@@ -29,7 +29,7 @@ interface AppConfig {
 }
 
 export default function Home() {
-  const { isSidebarOpen, isMobile, closeSidebar } = useUI();
+  const { isMobile, closeSidebar } = useUI();
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [user, setUser] = useState<UserData | null>(null);
